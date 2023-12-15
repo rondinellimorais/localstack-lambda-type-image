@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Outputs:
+  ApiURL:
+    Description: "API endpoint URL"
+    Value:
+      !Sub "http://${RestApiGateway}.execute-api.localhost.localstack.cloud:4566/dev"
+
+Resources:
+  RestApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+
+  MyTestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      FunctionName: !Sub "${AWS::StackName}-MyTest"
+      Events:
+        MyTestApiEvent:
+          Type: Api
+          Properties:
+            Method: GET
+            Path: /api/v1/mytest
+            RestApiId: !Ref RestApiGateway
+    Metadata:
+      Dockerfile: src/functions/my_test/Dockerfile
+      DockerContext: .
+      DockerBuildArgs:
+        FUNCTION_DIR: src/functions/my_test
+        SOURCE_DIR: src

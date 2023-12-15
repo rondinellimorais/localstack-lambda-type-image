@@ -1,0 +1,36 @@
+version: "3.1"
+
+services:
+  localstack:
+    image: localstack/localstack-pro:2.3.2
+    container_name: localstack_main
+    networks:
+      - lambda-network
+    ports:
+      - "4566-4597:4566-4597"  # LocalStack Gateway
+      - "4510-4559:4510-4559"  # external services port range
+      - "53:53"                # DNS config (required for Pro)
+      - "53:53/udp"            # DNS config (required for Pro)
+      - "443:443"              # LocalStack HTTPS Gateway (required for Pro)
+    environment:
+      - SERVICES=cloudformation,events,dynamodb,sqs,ses,s3,cognito-idp,iam,sts,apigateway,apigatewayv2,lambda,cloudwatch,ecr,ecs,eks,cloudfront,acm,route53,stepfunctions
+      - DEBUG=1
+      - LAMBDA_DOCKER_NETWORK=lambda-network
+      - LAMBDA_EXECUTOR=docker-reuse
+      - LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT=300
+      - USE_LEGACY_PORTS=false
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_ACCESS_KEY_ID=local
+      - AWS_SECRET_ACCESS_KEY=local
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN- }
+      - DISABLE_CORS_CHECKS=1
+      - DISABLE_CUSTOM_CORS_APIGATEWAY=1
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - "${TMPDIR:-/var/lib/localstack}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  lambda-network:
+    name: lambda-network
+    driver: bridge
