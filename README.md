@@ -34,6 +34,12 @@ capabilities = "CAPABILITY_IAM CAPABILITY_AUTO_EXPAND CAPABILITY_NAMED_IAM"
 image_repositories = ["MyTestFunction=localhost.localstack.cloud:4510/dev-stackname/mytestfunction00000000repo"]
 ```
 
+If you have multiple lambdas you can separate them with commas in the `toml`, something like this:
+
+```
+image_repositories = ["MyFn001=repo","MyFn002=repo","MyFn003=repo"]
+```
+
 So I built a make function to create the repository every time I do a local deploy:
 
 ### MakeFile
