@@ -1,0 +1,39 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- localstack+azurepipelines
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- script: |
+    python3 -m pip install --upgrade pip
+    python3 -m pip install localstack
+    python3 -m pip install aws-sam-cli==1.88.0
+    python3 -m pip install aws-sam-cli-local==1.55.0
+  displayName: 'Install AWS SAM CLI using pip'
+
+- script: |
+    docker pull localstack/localstack-pro:2.3.2
+    localstack start -d
+
+    echo "Waiting for LocalStack startup..."
+    localstack wait -t 30
+    echo "Startup complete"
+  displayName: Start LocalStack
+  env:
+    LOCALSTACK_API_KEY: $(LOCALSTACK_API_KEY)
+
+- script: make build
+  displayName: SAM Build
+
+- script: make deploy-local-dockerimage
+  displayName: SAM Deploy
+  env:
+    AWS_ACCESS_KEY_ID: local
+    AWS_SECRET_ACCESS_KEY: local
+    AWS_DEFAULT_REGION: us-east-1
