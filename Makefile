@@ -11,7 +11,4 @@ deploy-local-dockerimage:
 		--endpoint-url=${localstack_endpoint} \
 		--no-cli-pager > /dev/null 2>&1 || true;
 
-	# aws ecr create-repository \
-	# 	--repository-name=.........
-
 	samlocal deploy --config-file samconfig.dev.toml
